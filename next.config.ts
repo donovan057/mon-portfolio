@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  /* Configuration pour l'export statique (GitHub Pages) */
+  output: 'export',
+  images: {
+    unoptimized: true,
+  },
+
   /* config options here */
   experimental: {
     agentFeedback: true,
@@ -15,6 +21,8 @@ const nextConfig: NextConfig = {
       },
     },
   },
+
+  basePath: '/mon-portfolio',
 };
 
 export default nextConfig;
