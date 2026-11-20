@@ -7,12 +7,9 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
 
-  /* config options here */
   experimental: {
     agentFeedback: true,
   },
-  cacheComponents: true,
-  partialPrefetching: true,
   turbopack: {
     rules: {
       "*.css": {
