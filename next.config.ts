@@ -3,6 +3,10 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* Configuration pour l'export statique (GitHub Pages) */
   output: 'export',
+  basePath: '/mon-portfolio',
+  assetPrefix: '/mon-portfolio/',
+  trailingSlash: true,
+
   images: {
     unoptimized: true,
   },
@@ -18,8 +22,6 @@ const nextConfig: NextConfig = {
       },
     },
   },
-
-  basePath: '/mon-portfolio',
 };
 
 export default nextConfig;

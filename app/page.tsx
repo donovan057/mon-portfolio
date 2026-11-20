@@ -1,11 +1,65 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ArrowDown, ArrowUpRight, Mail, ExternalLink, Code2, MonitorSmartphone, Rocket, CheckCircle2 } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  ArrowDown, ArrowUpRight, Mail, ExternalLink, Code2, 
+  MonitorSmartphone, Rocket, CheckCircle2, Copy, Check, 
+  X, Loader2, AlertCircle 
+} from "lucide-react";
 
 export default function Home() {
+  // États pour le formulaire
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  
+  // État pour le bouton "Copier"
+  const [copied, setCopied] = useState(false);
+  
+  // État pour la modale des mentions légales
+  const [isLegalOpen, setIsLegalOpen] = useState(false);
+
+  const emailAddress = "contact@donovan-r.com";
+
+  // Gestion de la copie de l'email
+  const handleCopyEmail = () => {
+    navigator.clipboard.writeText(emailAddress);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Gestion de l'envoi du formulaire
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus("loading");
+
+    const formPayload = new FormData();
+    formPayload.append("access_key", "VOTRE_CLE_ACCESS_WEB3FORMS"); // ⚠️ Remplace par ta clé
+    formPayload.append("name", formData.name);
+    formPayload.append("email", formData.email);
+    formPayload.append("message", formData.message);
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formPayload,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setStatus("success");
+        setFormData({ name: "", email: "", message: "" });
+      } else {
+        setStatus("error");
+      }
+    } catch (error) {
+      setStatus("error");
+    }
+  };
+
   return (
-    <main className="min-h-screen bg-white text-slate-900 overflow-hidden relative selection:bg-purple-200">
+    <main className="min-h-screen bg-white text-slate-900 overflow-hidden relative selection:bg-purple-200 scroll-smooth">
       
       {/* --- DÉGRADÉS DE FOND --- */}
       <div className="absolute top-0 left-0 w-full h-[600px] overflow-hidden -z-10 pointer-events-none">
@@ -21,6 +75,7 @@ export default function Home() {
         <div className="hidden md:flex gap-6 text-sm font-medium text-slate-600">
           <a href="#services" className="hover:text-slate-900 transition-colors">Services</a>
           <a href="#projets" className="hover:text-slate-900 transition-colors">Projets</a>
+          <a href="#methode" className="hover:text-slate-900 transition-colors">Méthode</a>
           <a href="#apropos" className="hover:text-slate-900 transition-colors">À propos</a>
         </div>
         <div className="flex items-center gap-4">
@@ -130,7 +185,7 @@ export default function Home() {
       </motion.section>
 
       {/* --- SECTION SERVICES --- */}
-      <section id="services" className="py-24 px-4 max-w-6xl mx-auto">
+      <section id="services" className="py-24 px-4 max-w-6xl mx-auto scroll-mt-20">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Mon expertise à votre service</h2>
           <p className="text-slate-500 max-w-2xl mx-auto">
@@ -163,7 +218,7 @@ export default function Home() {
       </section>
 
       {/* --- SECTION PROJETS --- */}
-      <section id="projets" className="py-24 px-4 bg-slate-50/50 border-y border-slate-100">
+      <section id="projets" className="py-24 px-4 bg-slate-50/50 border-y border-slate-100 scroll-mt-20">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Mes derniers projets</h2>
@@ -183,11 +238,18 @@ export default function Home() {
             >
               <div className="h-64 bg-slate-100 relative overflow-hidden flex items-center justify-center">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-purple-100"></div>
-                <span className="relative text-slate-400 font-medium text-sm">Aperçu du projet (Image)</span>
+                <img 
+                  src="/images/projet-architecte.png" 
+                  alt="Aperçu site architecte" 
+                  className="relative w-full h-full object-cover z-10"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <span className="absolute text-slate-400 font-medium text-sm z-0">Aperçu du projet (Image)</span>
               </div>
               
               <div className="p-6 flex flex-col flex-grow">
                 <h3 className="text-xl font-bold mb-2 text-slate-800">Site Vitrine - Architecte</h3>
+                <p className="text-sm text-blue-600 font-medium mb-3">Architecture optimisée pour un chargement instantané.</p>
                 <p className="text-sm text-slate-500 mb-6 flex-grow">
                   Refonte complète d'un site pour un cabinet d'architecture. Focus sur la fluidité, la typographie et le responsive.
                 </p>
@@ -216,11 +278,18 @@ export default function Home() {
             >
               <div className="h-64 bg-slate-100 relative overflow-hidden flex items-center justify-center">
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-100 to-teal-100"></div>
-                <span className="relative text-slate-400 font-medium text-sm">Aperçu du projet (Image)</span>
+                <img 
+                  src="/images/projet-gestion.png" 
+                  alt="Aperçu application de gestion" 
+                  className="relative w-full h-full object-cover z-10"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <span className="absolute text-slate-400 font-medium text-sm z-0">Aperçu du projet (Image)</span>
               </div>
               
               <div className="p-6 flex flex-col flex-grow">
                 <h3 className="text-xl font-bold mb-2 text-slate-800">Application de Gestion</h3>
+                <p className="text-sm text-blue-600 font-medium mb-3">Interface fluide et temps de réponse réduit.</p>
                 <p className="text-sm text-slate-500 mb-6 flex-grow">
                   Interface intuitive pour organiser ses projets. Système de glisser-déposer et mise à jour en temps réel.
                 </p>
@@ -242,8 +311,40 @@ export default function Home() {
         </div>
       </section>
 
+      {/* --- SECTION MÉTHODE DE TRAVAIL --- */}
+      <section id="methode" className="py-24 px-4 max-w-6xl mx-auto scroll-mt-20">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Ma méthode de travail</h2>
+          <p className="text-slate-500 max-w-2xl mx-auto">
+            Un processus clair et transparent, de l'idée initiale à la mise en ligne.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-4 gap-8">
+          {[
+            { step: "01", title: "Échange & Devis", desc: "Analyse de vos besoins et proposition chiffrée sous 24h." },
+            { step: "02", title: "Design & Maquette", desc: "Validation de l'interface avant le développement." },
+            { step: "03", title: "Développement", desc: "Code propre, rapide, responsive et optimisé SEO." },
+            { step: "04", title: "Mise en ligne & Suivi", desc: "Déploiement, tests finaux et accompagnement." }
+          ].map((item, i) => (
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="relative"
+            >
+              <div className="text-5xl font-extrabold text-slate-100 mb-4">{item.step}</div>
+              <h3 className="text-lg font-bold mb-2">{item.title}</h3>
+              <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
       {/* --- SECTION À PROPOS --- */}
-      <section id="apropos" className="py-24 px-4 max-w-4xl mx-auto">
+      <section id="apropos" className="py-24 px-4 max-w-4xl mx-auto scroll-mt-20">
         <div className="flex flex-col md:flex-row items-center gap-12">
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
@@ -252,10 +353,15 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="w-full md:w-1/3"
           >
-            {/* Remplacer par ta photo plus tard */}
             <div className="aspect-square bg-slate-100 rounded-3xl border border-slate-200 flex items-center justify-center relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-slate-200 to-slate-100"></div>
-              <span className="relative text-slate-400 font-medium">Votre photo</span>
+              <img 
+                src="/images/donovan-avatar.png" 
+                alt="Donovan Rinquebach" 
+                className="relative w-full h-full object-cover z-10"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
+              <span className="absolute text-slate-400 font-medium z-0">Votre photo</span>
             </div>
           </motion.div>
 
@@ -285,7 +391,7 @@ export default function Home() {
       </section>
 
       {/* --- SECTION CONTACT --- */}
-      <section id="contact" className="py-24 px-4 bg-slate-900 text-white">
+      <section id="contact" className="py-24 px-4 bg-slate-900 text-white scroll-mt-20">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">Discutons de votre projet</h2>
@@ -296,36 +402,95 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 gap-8">
             {/* Formulaire */}
-            <form className="space-y-4 bg-slate-800 p-8 rounded-2xl border border-slate-700">
+            <form onSubmit={handleSubmit} className="space-y-4 bg-slate-800 p-8 rounded-2xl border border-slate-700">
+              
+              {status === "success" && (
+                <div className="bg-green-500/10 border border-green-500/50 text-green-400 p-4 rounded-lg flex items-center gap-3 mb-4">
+                  <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+                  <p className="text-sm">Message envoyé avec succès ! Je vous répondrai sous 24h.</p>
+                </div>
+              )}
+
+              {status === "error" && (
+                <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-4 rounded-lg flex items-center gap-3 mb-4">
+                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                  <p className="text-sm">Une erreur est survenue. Veuillez réessayer ou m'envoyer un email direct.</p>
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">Nom</label>
-                <input type="text" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Votre nom" />
+                <input 
+                  type="text" 
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                  placeholder="Votre nom" 
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">Email</label>
-                <input type="email" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="vous@exemple.com" />
+                <input 
+                  type="email" 
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                  placeholder="vous@exemple.com" 
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">Message</label>
-                <textarea rows={4} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Décrivez votre projet..."></textarea>
+                <textarea 
+                  rows={4} 
+                  required
+                  value={formData.message}
+                  onChange={(e) => setFormData({...formData, message: e.target.value})}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                  placeholder="Décrivez votre projet..."
+                ></textarea>
               </div>
-              <button type="button" className="w-full bg-[#635BFF] hover:bg-[#524be0] text-white py-3 rounded-lg font-semibold transition-colors">
-                Envoyer le message
+              <button 
+                type="submit" 
+                disabled={status === "loading"}
+                className="w-full bg-[#635BFF] hover:bg-[#524be0] disabled:opacity-70 disabled:cursor-not-allowed text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+              >
+                {status === "loading" ? (
+                  <><Loader2 className="w-5 h-5 animate-spin" /> Envoi en cours...</>
+                ) : (
+                  "Envoyer le message"
+                )}
               </button>
             </form>
 
             {/* Liens directs */}
             <div className="flex flex-col justify-center space-y-6 md:pl-8">
-              <a href="mailto:contact@donovan-r.com" className="flex items-center gap-4 p-4 rounded-xl hover:bg-slate-800 transition-colors group">
-                <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center group-hover:bg-slate-700">
-                  <Mail className="w-5 h-5 text-blue-400" />
+              <div className="flex items-center justify-between p-4 rounded-xl bg-slate-800 border border-slate-700">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-slate-900 rounded-full flex items-center justify-center">
+                    <Mail className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-400">Par email</p>
+                    <p className="font-medium text-white">{emailAddress}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-slate-400">Par email</p>
-                  <p className="font-medium text-white">contact@donovan-r.com</p>
-                </div>
-              </a>
-              <a href="https://github.com/donovan057" target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-xl hover:bg-slate-800 transition-colors group">
+                <button 
+                  onClick={handleCopyEmail}
+                  className="p-2 hover:bg-slate-700 rounded-lg transition-colors relative group"
+                  title="Copier l'email"
+                >
+                  {copied ? <Check className="w-5 h-5 text-green-400" /> : <Copy className="w-5 h-5 text-slate-400 group-hover:text-white" />}
+                  {copied && (
+                    <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs py-1 px-2 rounded border border-slate-700 whitespace-nowrap">
+                      Copié !
+                    </span>
+                  )}
+                </button>
+              </div>
+
+              <a href="https://github.com/donovan057" target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-xl hover:bg-slate-800 transition-colors group border border-transparent hover:border-slate-700">
                 <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center group-hover:bg-slate-700">
                   <Code2 className="w-5 h-5 text-blue-400" />
                 </div>
@@ -334,7 +499,7 @@ export default function Home() {
                   <p className="font-medium text-white">GitHub / donovan057</p>
                 </div>
               </a>
-              <a href="https://linkedin.com/in/donovan-rinquebach" target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-xl hover:bg-slate-800 transition-colors group">
+              <a href="https://linkedin.com/in/donovan-rinquebach" target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-xl hover:bg-slate-800 transition-colors group border border-transparent hover:border-slate-700">
                 <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center group-hover:bg-slate-700">
                   <ExternalLink className="w-5 h-5 text-blue-400" />
                 </div>
@@ -350,10 +515,58 @@ export default function Home() {
 
       {/* --- FOOTER --- */}
       <footer className="bg-slate-950 py-8 text-center border-t border-slate-800">
-        <p className="text-slate-500 text-sm">
-          © {new Date().getFullYear()} Donovan Rinquebach. Tous droits réservés.
-        </p>
+        <div className="flex flex-col md:flex-row items-center justify-between max-w-4xl mx-auto px-4 gap-4">
+          <p className="text-slate-500 text-sm">
+            © {new Date().getFullYear()} Donovan Rinquebach. Tous droits réservés.
+          </p>
+          <button 
+            onClick={() => setIsLegalOpen(true)}
+            className="text-sm text-slate-500 hover:text-white transition-colors underline underline-offset-4"
+          >
+            Mentions légales
+          </button>
+        </div>
       </footer>
+
+      {/* --- MODALE MENTIONS LÉGALES --- */}
+      <AnimatePresence>
+        {isLegalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm"
+            onClick={() => setIsLegalOpen(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-8 relative"
+            >
+              <button 
+                onClick={() => setIsLegalOpen(false)}
+                className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <h2 className="text-2xl font-bold mb-6 text-slate-900">Mentions légales</h2>
+              
+              <div className="space-y-4 text-slate-600 text-sm leading-relaxed">
+                <p><strong>Éditeur du site :</strong> Donovan Rinquebach</p>
+                <p><strong>Statut :</strong> Entrepreneur individuel / Micro-entreprise</p>
+                <p><strong>Contact :</strong> contact@donovan-r.com</p>
+                <p><strong>Hébergeur :</strong> GitHub Inc. - GitHub Pages (88 Colin P Kelly Jr St, San Francisco, CA 94107, USA)</p>
+                <p className="pt-4 border-t border-slate-200 mt-4">
+                  Ce site a été conçu et développé par Donovan Rinquebach. Toutes les images, textes et éléments graphiques présents sur ce site sont protégés par le droit d'auteur. Toute reproduction, même partielle, est interdite sans autorisation préalable.
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </main>
   );
